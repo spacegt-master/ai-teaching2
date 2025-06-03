@@ -53,10 +53,10 @@ watch(() => display.mobile, (value) => {
 const load = () => {
     overlay.value = true
 
-    var container = document.querySelector("#unity-container");
-    var canvas = document.querySelector("#unity-canvas");
-    var loadingBar = document.querySelector("#unity-loading-bar");
-    var progressBarFull = document.querySelector("#unity-progress-bar-full");
+    var container = document.querySelector("#unity-container") as any;
+    var canvas = document.querySelector("#unity-canvas") as any;
+    var loadingBar = document.querySelector("#unity-loading-bar") as any;
+    var progressBarFull = document.querySelector("#unity-progress-bar-full") as any;
 
     // const baseUrl = 'https://human-avatars.oss-cn-beijing.aliyuncs.com/carton/Build/yg_carton'
     // var loaderUrl = baseUrl + ".loader.js";
@@ -103,14 +103,15 @@ const load = () => {
     }
 
     loadingBar.style.display = "block";
-    window.isPlaying = 1;
+
+    (window as any).isPlaying = 1;
 
     var script = document.createElement("script");
-    var unityDesktop = document.querySelector("#unity-container");
+    var unityDesktop = document.querySelector("#unity-container") as any;
     script.src = loaderUrl;
 
     script.onload = () => {
-        createUnityInstance(canvas, config, (progress: number) => {
+        (window as any).createUnityInstance(canvas, config, (progress: number) => {
             progressBarFull.style.width = 100 * progress + "%";
         }).then((unityInstance: any) => {
             modelStore.loaded = true
@@ -123,6 +124,7 @@ const load = () => {
                 } else {
                     modelStore.ShowBackPanel('false')
                 }
+
                 unityDesktop.style.opacity = 1;
 
                 overlay.value = false
@@ -137,6 +139,8 @@ const load = () => {
 onMounted(() => {
     load()
 })
+
+
 </script>
 
 <style scoped>
