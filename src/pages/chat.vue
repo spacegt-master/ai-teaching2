@@ -28,6 +28,10 @@ const md = markdownit({ html: true, breaks: true });
 
 const { token } = theme.useToken()
 
+const dialog = ref(false)
+
+const dialogItem = ref()
+
 const styles = computed(() => {
   return {
     'layout': {
@@ -184,6 +188,18 @@ watch(activeKey, () => {
   }
 }, { immediate: true })
 
+const openDialog = (item: any) => {
+  dialog.value = true
+
+  dialogItem.value = item
+}
+
+const closeDialog = () => {
+  dialog.value = false
+
+  dialogItem.value = null
+}
+
 // ==================== Event ====================
 function onSubmit(nextContent: string) {
   if (!nextContent)
@@ -262,20 +278,14 @@ const items = computed<any>(() => {
             </template>
           </v-list-item>
 
-          <v-list item-props :items="files" lines="two">
+          <v-list max-height="300px" item-props :items="files" lines="two">
             <template #item="{ props: itemProps }">
-              <a data-fancybox="gallery" :href="itemProps.previewUrl">
-                <v-list-item link :subtitle="`Size: ${(itemProps.size / 1024 / 1024).toFixed(2)} MB`"
-                  :title="itemProps.name">
-                  <template #prepend>
-                    <v-avatar class="pa-7" color="surface-light" rounded="lg" size="50">
-                      <v-avatar :icon="itemProps.icon" rounded>
-                        <v-img :src="itemProps.coverUrl" width="100%" height="100%"></v-img>
-                      </v-avatar>
-                    </v-avatar>
-                  </template>
-                </v-list-item>
+              <a v-if="['.mp4', '.png', '.jpg'].includes(itemProps.extension)" data-fancybox="gallery"
+                :href="itemProps.previewUrl">
+                <attachement :itemProps="itemProps"></attachement>
               </a>
+
+              <attachement v-else :itemProps="itemProps" @click="openDialog(itemProps)"></attachement>
             </template>
           </v-list>
         </v-list>
@@ -289,6 +299,26 @@ const items = computed<any>(() => {
         @submit="onSubmit" @change="value => content = value">
       </Sender>
     </div>
+
+    <v-dialog v-model="dialog" max-width="800" fullscreen>
+      <template v-slot:default="{ isActive }">
+        <v-card>
+          <v-card-title class="d-flex justify-space-between align-center">
+            <div class="text-h6 text-medium-emphasis ps-2 v-list-item-title">
+              {{ dialogItem.name }}
+            </div>
+
+            <v-btn icon="mdi-close" variant="text" @click="closeDialog()"></v-btn>
+          </v-card-title>
+
+          <v-divider class="mb-4"></v-divider>
+
+          <v-card-text>
+            <iframe class="w-100 h-100 border-0" :src="dialogItem.previewUrl"></iframe>
+          </v-card-text>
+        </v-card>
+      </template>
+    </v-dialog>
   </div>
 </template>
 
