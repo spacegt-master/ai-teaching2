@@ -18,10 +18,9 @@ import Chat from './chat.vue'
 import { useDisplay } from 'vuetify';
 
 const display = useDisplay()
-console.log(display.mobile)
-const chatClass = display.mobile.value ? ['h-75', 'position-fixed', 'bottom-0', 'left-0' ] : ['h-100']
 
+const chatClass = display.mobile.value ? ['h-75', 'position-fixed', 'bottom-0', 'left-0'] : ['h-100']
 
-const modelStyle = display.mobile.value ? ['margin-top:-50%;','z-index: 0;'] : []
+const modelStyle = display.mobile.value ? ['margin-top:-50%;', 'z-index: 0;'] : []
 </script>
 <style scoped></style>

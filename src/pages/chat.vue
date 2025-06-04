@@ -14,7 +14,7 @@ import {
   useXChat,
   Welcome,
 } from 'ant-design-x-vue'
-import { computed, h, ref, watch } from 'vue'
+import { computed, h, nextTick, ref, watch } from 'vue'
 import { useGlobalStore } from '@/store/global';
 import { useModelStore } from '@/store/model';
 
@@ -165,6 +165,11 @@ const [agent] = useXAgent({
 
       if (result.type == 'RESOURCE') {
         files.value = result.resources
+        
+        files.value.sort((a: any, b: any) => a.extension == b.extension ? 0 : a.extension == '.mp4' ? -1 : 1)
+
+        if (files.value?.length > 0)
+          files.value = [files.value[0]]
       }
     };
 
@@ -189,15 +194,17 @@ watch(activeKey, () => {
 }, { immediate: true })
 
 const openDialog = (item: any) => {
-  dialog.value = true
-
   dialogItem.value = item
+
+  dialog.value = true
 }
 
 const closeDialog = () => {
   dialog.value = false
 
-  dialogItem.value = null
+  nextTick(() => {
+    dialogItem.value = null
+  })
 }
 
 // ==================== Event ====================
@@ -278,14 +285,15 @@ const items = computed<any>(() => {
             </template>
           </v-list-item>
 
-          <v-list max-height="300px" item-props :items="files" lines="two">
+          <v-list max-height="100px" item-props :items="files" lines="two">
             <template #item="{ props: itemProps }">
               <a v-if="['.mp4', '.png', '.jpg'].includes(itemProps.extension)" data-fancybox="gallery"
                 :href="itemProps.previewUrl">
-                <attachement :itemProps="itemProps"></attachement>
+                <attachement :itemProps="itemProps" @click="modelStore.StopAudio()"></attachement>
               </a>
 
-              <attachement v-else :itemProps="itemProps" @click="openDialog(itemProps)"></attachement>
+              <attachement v-else :itemProps="itemProps" @click="openDialog(itemProps); modelStore.StopAudio()">
+              </attachement>
             </template>
           </v-list>
         </v-list>
@@ -305,7 +313,7 @@ const items = computed<any>(() => {
         <v-card>
           <v-card-title class="d-flex justify-space-between align-center">
             <div class="text-h6 text-medium-emphasis ps-2 v-list-item-title">
-              {{ dialogItem.name }}
+              {{ dialogItem?.name }}
             </div>
 
             <v-btn icon="mdi-close" variant="text" @click="closeDialog()"></v-btn>
@@ -314,7 +322,7 @@ const items = computed<any>(() => {
           <v-divider class="mb-4"></v-divider>
 
           <v-card-text>
-            <iframe class="w-100 h-100 border-0" :src="dialogItem.previewUrl"></iframe>
+            <iframe class="w-100 h-100 border-0" :src="dialogItem?.previewUrl"></iframe>
           </v-card-text>
         </v-card>
       </template>
